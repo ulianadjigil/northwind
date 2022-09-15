@@ -7,10 +7,10 @@
 
 2.	Вивести вміст таблиці Order Details, замінивши назви атрибутів OrderID та ProductID на OrderNumber та ProductNumber.
 
->**SELECT OrderID AS OrderNumber, 
->ProductID AS ProductNumber, 
->UnitPrice, Quantity, Discount 
->FROM `Order Details`;**
+>**SELECT OrderID AS OrderNumber, **
+>**ProductID AS ProductNumber, **
+>**UnitPrice, Quantity, Discount **
+>vFROM `Order Details`;**
 
 
 3.	Вивести назву всіх продуктів, що продаються у банках (jar), відсортувати за алфавітом.
