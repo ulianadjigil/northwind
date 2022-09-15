@@ -2,15 +2,15 @@
 
 1.	Використавши SELECT та не використовуючи FROM вивести на екран назву виконавця та пісні, яку ви слухали останньою. Імена колонок вказати як Artist та Title. 
 
-**SELECT "Justin Bieber" AS Artist, "Peaches" AS Title;**
+>**SELECT "Justin Bieber" AS Artist, "Peaches" AS Title;**
 
 
 2.	Вивести вміст таблиці Order Details, замінивши назви атрибутів OrderID та ProductID на OrderNumber та ProductNumber.
 
-**SELECT OrderID AS OrderNumber, 
-ProductID AS ProductNumber, 
-UnitPrice, Quantity, Discount 
-FROM `Order Details`;**
+>**SELECT OrderID AS OrderNumber, 
+>ProductID AS ProductNumber, 
+>UnitPrice, Quantity, Discount 
+>FROM `Order Details`;**
 
 
 3.	Вивести назву всіх продуктів, що продаються у банках (jar), відсортувати за алфавітом.
