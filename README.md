@@ -1,5 +1,11 @@
 # northwind
 
+### ER-diagram
+
+<img width="955" alt="Снимок экрана 2022-09-17 в 15 50 46" src="https://user-images.githubusercontent.com/85234616/190857749-12619b9e-969f-46d1-8670-d2ebb573096e.png">
+
+### Tasks
+
 **1.	Використавши SELECT та не використовуючи FROM вивести на екран назву виконавця та пісні, яку ви слухали останньою. Імена колонок вказати як Artist та Title.**
 
 >SELECT "Justin Bieber" AS Artist, "Peaches" AS Title;
@@ -55,4 +61,51 @@
 >(SELECT CustomerID FROM Orders WHERE ShipVia = <br/>
 >(SELECT ShipperID FROM Shippers WHERE CompanyName = 'Federal Shipping'));<br/>
 
+**8.	Знайти всіх співробітників, що ніколи не надавали знижок. Навіть якщо такі на даний момент відсутні.**
+
+>SELECT e.EmployeeID, SUM(od.Discount) FROM Employees e <br/>
+>JOIN Orders o ON e.EmployeeID = o.EmployeeID <br/>
+>JOIN 'Order Details' od ON od.OrderID = o.OrderID <br/>
+>GROUP BY e.EmployeeID HAVING SUM(od.Discount) = 0; <br/>
+
+**9.	Показати всі персональні дані з бази Northwind: повне ім’я, країну, місто, адресу, телефон. Звернути увагу, що ця інформація присутня в різних таблицях.**
+
+>SELECT ContactName AS FUllName, Address, City, Country, Phone FROM Suppliers <br/>
+>UNION ALL <br/>
+>SELECT CONCAT(FirstName, ' ', LastName) AS FullName,  <br/>
+>Address, City, Country, HomePhone AS Phone FROM Employees <br/>
+>UNION ALL <br/>
+>SELECT ContactName AS FUllName, Address, City, Country, Phone FROM Customers; <br/>
+
+**10.	Відобразити список всіх країн та міст, куди компанія робила відправлення. Позбавитися порожніх значень на дублікатів.**
+
+>SELECT DISTINCT ShipCity, ShipCountry FROM Orders  <br/>
+>WHERE ShipCity IS NOT NULL and ShipCountry IS NOT NULL; <br/>
+
+**11.	Використовуючи базу Northwind вивести в алфавітному порядку назви продуктів та їх сумарну кількість в замовленнях.**
+
+>SELECT p.ProductName, SUM(Quantity) AS GeneralQuantity FROM 'Order Details' od  <br/>
+>JOIN Products p ON p.ProductID = od.ProductID <br/>
+>GROUP BY p.ProductName <br/>
+>ORDER BY p.ProductName; <br/>
+
+**12.	Вивести імена всіх постачальників та сумарну вартість їх товарів, що зараз знаходяться на складі Northwind за умови, що ця сума більше $1000.**
+
+>SELECT s.CompanyName, SUM(UnitPrice * UnitsInStock) AS TotalPrice FROM Suppliers s <br/>
+>JOIN Products p ON p.SupplierID = s.SupplierID <br/>
+>GROUP BY s.CompanyName HAVING TotalPrice > 1000; <br/>
+
+**13.	Знайти кількість замовлень, де фігурують товари з категорії «Сири». Результат має містити дві колонки: опис категорії та кількість замовлень.**
+
+>SELECT Description,  SUM(Quantity) FROM Categories c <br/>
+>JOIN Products p ON p.CategoryID = c.CategoryID <br/>
+>JOIN 'Order Details' od ON p.ProductID = od.ProductID <br/>
+>GROUP BY Description HAVING Description LIKE "%Cheese%"; <br/>
+
+**14.	Відобразити всі імена компаній-замовників та загальну суму всіх їх замовлень, враховуючи кількість товару та знижки. Показати навіть ті компанії, у яких замовлення відсутні. Позбавитися від відсутніх значень замінивши їх на нуль. Округлити числові результати до двох знаків після коми, відсортувати за алфавітом.**
+
+>SELECT CompanyName, IFNULL(ROUND(SUM(UnitPrice * Quantity * (1 - Discount)), 2), 0) AS OrderSum FROM Customers c <br/>
+>JOIN Orders o ON c.CustomerID = o.CustomerID   <br/>
+>JOIN 'Order Details' od ON o.OrderID = od.OrderID <br/>
+>GROUP BY CompanyName; <br/>
 
