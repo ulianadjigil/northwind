@@ -109,3 +109,76 @@
 >JOIN 'Order Details' od ON o.OrderID = od.OrderID <br/>
 >GROUP BY CompanyName; <br/>
 
+	
+**15.	Вивести три колонки: співробітника (прізвище та ім’я, включаючи офіційне звернення), компанію, з якою співробітник найбільше працював згідно величини товарообігу (максимальна сума по усім замовленням в розрізі компанії), та ім’я представника компанії, додавши до останнього через кому посаду. Цікавить інформація тільки за 1996 рік.**
+
+>SELECT c.CompanyName, c.ContactName, <br/>
+>CONCAT(empl.TitleOfCourtesy, ' ', empl.FirstName, ' ', empl.LastName) AS EmployeeName,<br/>
+>totalOrders.Amount FROM <br/>
+>>(SELECT o.EmployeeID, o.CustomerID, SUM(UnitPrice * Quantity) AS Amount,<br/>
+>>RANK() OVER (PARTITION BY  o.EmployeeID ORDER BY SUM(UnitPrice * Quantity) DESC) AS Most  <br/>
+>>FROM (SELECT * FROM orders WHERE OrderDate LIKE '%1996%') o <br/>
+>>JOIN 'Order Details' od ON o.OrderID = od.OrderID <br/>
+>>GROUP BY o.EmployeeID, o.CustomerID) totalOrders <br/>
+>
+>JOIN Employees empl ON empl.EmployeeID = totalOrders.EmployeeID <br/>
+>JOIN Customers c ON c.CustomerID = totalOrders.CustomerID <br/>
+>WHERE Most = 1; <br/>
+
+
+**16.	Вивести три колонки та три рядки. Колонки: Description, Key, Value. Рядки: 
+ShippedDate, дата з максимальною кількістю відправлених замовлень, кількість відправлених замовлень на цю дату; 
+Customer, замовник з максимальною кількістю відправлених замовлень, загальна кількість відправлених замовлень цьому замовнику; 
+Shipper, перевізник з максимальною кількістю оброблених замовлень, загальна кількість відправлених через цього перевізника.**
+
+>>SELECT 'ShippedDate' AS 'Description', r.Key AS 'Key',  <br/>
+>>r.Value AS 'Value' <br/>
+>>FROM (SELECT ShippedDate AS 'Key',  <br/>
+>>COUNT(o.OrderID) AS 'Value' <br/>
+>>FROM Orders o <br/>
+>>WHERE ShippedDate IS NOT NULL <br/>
+>>GROUP BY 'Key' <br/>
+>>ORDER BY 'Value' DESC <br/>
+>>LIMIT 1) r <br/>
+>
+>UNION <br/>
+>>SELECT 'ShippedDate' AS 'Description', CompanyName AS 'Key',  <br/>
+>>r.Value AS 'Value' <br/>
+>>FROM (SELECT CustomerID AS 'Key',  <br/>
+>>COUNT(o.OrderID) AS 'Value' <br/>
+>>FROM Orders o <br/>
+>>WHERE CustomerID IS NOT NULL <br/>
+>>GROUP BY 'Key' <br/>
+>>ORDER BY 'Value' DESC <br/>
+>>LIMIT 1) r <br/>
+>>JOIN Customers c ON c.CustomerID = r.Key <br/>
+>
+>UNION <br/>
+>>SELECT 'ShippedDate' AS 'Description', CompanyName AS 'Key',  <br/>
+>>r.Value AS 'Value' <br/>
+>>FROM (SELECT ShipVia AS 'Key',  <br/>
+>>COUNT(o.OrderID) AS 'Value' <br/>
+>>FROM Orders o <br/>
+>>WHERE ShipVia IS NOT NULL <br/>
+>>GROUP BY 'Key' <br/>
+>>ORDER BY 'Value' DESC <br/>
+>>LIMIT 1) r <br/>
+>>JOIN Shippers c ON c.ShipperID = r.Key; <br/>
+
+**17.	Вивести найбільш популярній товари в розрізі країни. Показати: назву країни, назву продукту, загальну вартість поставок за весь час. Не використовувати функцій ранкування та партиціонування.**
+
+>SELECT t1.ShipCountry, p.ProductName, t1.Cost  <br/>
+>>FROM (SELECT ShipCountry, ProductID, SUM(UnitPrice * Quantity) AS Cost FROM orders o <br/>
+>>JOIN 'Order Details' od ON od.OrderID = o.OrderID <br/>
+>>GROUP BY ShipCountry, ProductID) t1 <br/>
+>
+>JOIN <br/>
+>>(SELECT ShipCountry,  MAX(Cost) AS MaxCost FROM <br/>
+>>>(SELECT ShipCountry, ProductID, SUM(UnitPrice * Quantity) AS Cost FROM orders o <br/>
+>>>JOIN 'Order Details' od ON od.OrderID = o.OrderID <br/>
+>>>GROUP BY ShipCountry, ProductID) t3 <br/>
+>>
+>>GROUP BY ShipCountry) t2  <br/>
+>
+>ON t1.ShipCountry = t2.ShipCountry AND t2.MaxCost = t1.Cost <br/>
+>JOIN Products p ON p.ProductID = t1.ProductID; <br/>
